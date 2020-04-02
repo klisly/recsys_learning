@@ -3,6 +3,8 @@ import heapq  # for retrieval topK
 import multiprocessing
 import numpy as np
 from time import time
+import traceback
+import random
 
 _model = None
 _testRatings = None
@@ -23,21 +25,25 @@ def evaluate_model(model, testRatings, testNegatives, K, num_thread):
     _testRatings = testRatings
     _testNegatives = testNegatives
     _K = K
-
+    cur = int(time())
     hits, ndcgs = [], []
     if (num_thread > 1):  # Multi-thread
+        # not work
         pool = multiprocessing.Pool(processes=num_thread)
         res = pool.map(eval_one_rating, range(len(_testRatings)))
-        pool.close()
-        pool.join()
         hits = [r[0] for r in res]
         ndcgs = [r[1] for r in res]
         return (hits, ndcgs)
     # Single thread
-    for idx in range(len(_testRatings)):
+    idxs = [item for item in range(len(_testRatings))]
+    random.shuffle(idxs)
+    for idx in idxs[:2000]:
         (hr, ndcg) = eval_one_rating(idx)
+        if not hr:
+            continue
         hits.append(hr)
         ndcgs.append(ndcg)
+    print("evalute cost", (int(time()) - cur))
     return (hits, ndcgs)
 
 

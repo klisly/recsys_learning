@@ -55,6 +55,7 @@ class DataLoader(object):
                     num_users = max(num_users, u)
                     num_items = max(num_items, i)
         # Construct matrix
+        count = 0
         mat = sp.dok_matrix((num_users + 1, num_items + 1), dtype=np.float32)
         with open(filename, "r", encoding='utf-8') as f:
             for line in f:
@@ -62,12 +63,10 @@ class DataLoader(object):
                 if line != None and line != "":
                     arr = line.split("\t")
                     user, item, rating = int(arr[0]), int(arr[1]), float(arr[2])
-                    if (rating > 0):
+                    if (rating > 3):
                         mat[user, item] = 1.0
-        return mat
+                    count += 1
+                    if count > 10000:
+                        break
 
-# data_set = DataSet("/Users/wizardholy/project/recsys_learning/datas/ml-1m/ml-1m")
-# print("load data:")
-# print(data_set.trainMatrix.shape)
-# print(len(data_set.testRatings))
-# print(len(data_set.testNegatives))
+        return mat
