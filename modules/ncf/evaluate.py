@@ -1,11 +1,21 @@
+'''
+Created on Apr 15, 2016
+Evaluate the performance of Top-K recommendation:
+    Protocol: leave-1-out evaluation
+    Measures: Hit Ratio and NDCG
+    (more details are in: Xiangnan He, et al. Fast Matrix Factorization for Online Recommendation with Implicit Feedback. SIGIR'16)
+
+@author: hexiangnan
+'''
 import math
 import heapq  # for retrieval topK
 import multiprocessing
 import numpy as np
 from time import time
-import traceback
-import random
 
+# from numba import jit, autojit
+
+# Global variables that are shared across processes
 _model = None
 _testRatings = None
 _testNegatives = None
@@ -28,19 +38,16 @@ def evaluate_model(model, testRatings, testNegatives, K, num_thread):
     cur = int(time())
     hits, ndcgs = [], []
     if (num_thread > 1):  # Multi-thread
-        # not work
         pool = multiprocessing.Pool(processes=num_thread)
         res = pool.map(eval_one_rating, range(len(_testRatings)))
+        pool.close()
+        pool.join()
         hits = [r[0] for r in res]
         ndcgs = [r[1] for r in res]
         return (hits, ndcgs)
     # Single thread
-    idxs = [item for item in range(len(_testRatings))]
-    random.shuffle(idxs)
-    for idx in idxs[:2000]:
+    for idx in range(len(_testRatings)):
         (hr, ndcg) = eval_one_rating(idx)
-        if not hr:
-            continue
         hits.append(hr)
         ndcgs.append(ndcg)
     print("evalute cost", (int(time()) - cur))
