@@ -16,7 +16,7 @@ train_datas = list()
 test_datas = list()
 uid_itemids = dict()
 
-file = '../../datas/info/user_read_docs.csv'
+file = 'datas/info/user_read_docs.csv'
 dir = "/home/recsys/dataset/user-read-docs"
 files = os.listdir(dir)
 for file_name in files:
@@ -67,13 +67,13 @@ for file_name in files:
             count += 1
 
 test_datas.append(item)
-with open("../../datas/info/info.train.rating", encoding="utf8", mode="w") as f:
+with open("datas/info/info.train.rating", encoding="utf8", mode="w") as f:
     for item in train_datas:
         out = str(item[0]) + "\t" + str(item[1]) + "\t" + str(item[2]) + "\t" + str(item[3])
         f.write(out + "\n")
 
-with open("../../datas/info/info.test.rating", encoding="utf8", mode="w") as f:
-    with open("../../datas/info/info.test.negative", encoding="utf8", mode="w") as nf:
+with open("datas/info/info.test.rating", encoding="utf8", mode="w") as f:
+    with open("datas/info/info.test.negative", encoding="utf8", mode="w") as nf:
         for item in test_datas[:6000]:
             line = str(item[0]) + "\t" + str(item[1]) + "\t" + str(item[2]) + "\t" + str(item[3])
             f.write(line + "\n")
@@ -87,10 +87,10 @@ with open("../../datas/info/info.test.rating", encoding="utf8", mode="w") as f:
                 itemset.add(idx)
             nf.write(nge.strip() + "\n")
 
-with open("../../datas/info/info.uid.map.txt", encoding="utf8", mode="w") as f:
+with open("datas/info/info.uid.map.txt", encoding="utf8", mode="w") as f:
     for item in uids_idx.keys():
         f.write(item + "\t" + str(uids_idx[item]) + "\n")
 
-with open("../../datas/info/info.item.map.txt", encoding="utf8", mode="w") as f:
+with open("datas/info/info.item.map.txt", encoding="utf8", mode="w") as f:
     for item in items_idx.keys():
         f.write(str(item) + "\t" + str(items_idx[item]) + "\n")
