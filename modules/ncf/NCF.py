@@ -23,6 +23,8 @@ def parse_args():
                         help='Input data path.')
     parser.add_argument('--dataset', nargs='?', default='info',
                         help='Choose a dataset.')
+    parser.add_argument('--type', nargs='?', default="neu_mf",
+                        help='Number of epochs.')
     parser.add_argument('--epochs', type=int, default=100,
                         help='Number of epochs.')
     parser.add_argument('--batch_size', type=int, default=256,
@@ -143,6 +145,7 @@ if __name__ == '__main__':
     args = parse_args()
     num_epochs = args.epochs
     batch_size = args.batch_size
+    type = args.type
     emb_dim = args.num_factors
     layers = eval(args.layers)
     reg_mf = args.reg_mf
@@ -165,11 +168,13 @@ if __name__ == '__main__':
     print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d"
           % (time() - t1, num_users, num_items, train.nnz, len(testRatings)))
     print("NeuMF arguments: %s " % (args))
-    # model = get_mlp_model(num_users, num_items)
-    # model = get_gmf_model(num_users, num_items, emb_dim)
+
     emb_path = "emb.txt"
     model = get_neumf_model(num_users, num_items)
-    type = "neu_mf"
+    if type == 'mlp':
+        model = get_mlp_model(num_users, num_items)
+    elif type == 'gmf':
+        model = get_gmf_model(num_users, num_items, emb_dim)
     model_out_file = 'Pretrain/%s_%s_%d_%s_%d.h5' % (args.dataset, type, emb_dim, args.layers, time())
     model.compile(optimizer="adam", loss="binary_crossentropy")
     total_start = time()
