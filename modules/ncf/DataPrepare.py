@@ -80,9 +80,9 @@ with open("datas/info/info.test.rating", encoding="utf8", mode="w") as f:
             nge = '(' + str(item[0]) + ',' + str(item[1]) + ')'
             itemset = uid_itemids[item[0]]
             for i in range(1, 100):
-                idx = random.randint(0, item_count - 1)
+                idx = random.randint(0, item_count - 2)
                 while idx in itemset:
-                    idx = random.randint(1, item_count - 1)
+                    idx = random.randint(1, item_count - 2)
                 nge += "\t" + str(idx)
                 itemset.add(idx)
             nf.write(nge.strip() + "\n")
