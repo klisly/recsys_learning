@@ -6,6 +6,7 @@
 import sys
 import math
 import random
+import os
 
 uids_idx = dict()
 items_idx = dict()
@@ -16,48 +17,54 @@ test_datas = list()
 uid_itemids = dict()
 
 file = '../../datas/info/user_read_docs.csv'
-with open(file, encoding='utf8') as f:
-    count = 0
-    item = None
-    for line in f:
-        line = line.strip()
-        pts = line.split(",")
-        uid = pts[0]
-        uid_idx = uid_count
-        if uid in uids_idx.keys():
-            uid_idx = uids_idx[uid]
-        else:
-            uids_idx[uid] = uid_idx
-            uid_count += 1
-        item_id = pts[1]
-        item_idx = item_count
-        if item_id in items_idx.keys():
-            item_idx = items_idx[item_id]
-        else:
-            items_idx[item_id] = item_idx
-            item_count += 1
-        if uid_idx not in uid_itemids.keys():
-            uid_itemids[uid_idx] = set()
-
-        uid_itemids[uid_idx].add(item_idx)
-        report = int(pts[2])
-        try:
-            rating = int(int(math.ceil(int(pts[3]) * 10 / (float(pts[-3]) * 8))))
-        except:
-            rating = 1
-            print("error", line)
-        if rating > 10:
-            rating = 10
-        new_item = [uid_idx, item_idx, rating, report]
-        if item:
-            if item and item[0] == new_item[0]:
-                train_datas.append(item)
+dir = "/home/recsys/dataset/user-read-docs"
+files = os.listdir(dir)
+for file_name in files:
+    if not file.endswith(".csv"):
+        continue
+    file = dir + "/" + file_name
+    with open(file, encoding='utf8') as f:
+        count = 0
+        item = None
+        for line in f:
+            line = line.strip()
+            pts = line.split(",")
+            uid = pts[0]
+            uid_idx = uid_count
+            if uid in uids_idx.keys():
+                uid_idx = uids_idx[uid]
             else:
-                test_datas.append(item)
-        item = new_item
-        if count % 1000 == 0:
-            print(count)
-        count += 1
+                uids_idx[uid] = uid_idx
+                uid_count += 1
+            item_id = pts[1]
+            item_idx = item_count
+            if item_id in items_idx.keys():
+                item_idx = items_idx[item_id]
+            else:
+                items_idx[item_id] = item_idx
+                item_count += 1
+            if uid_idx not in uid_itemids.keys():
+                uid_itemids[uid_idx] = set()
+
+            uid_itemids[uid_idx].add(item_idx)
+            report = int(pts[2])
+            try:
+                rating = int(int(math.ceil(int(pts[3]) * 10 / (float(pts[-3]) * 8))))
+            except:
+                rating = 1
+                print("error", line)
+            if rating > 10:
+                rating = 10
+            new_item = [uid_idx, item_idx, rating, report]
+            if item:
+                if item and item[0] == new_item[0]:
+                    train_datas.append(item)
+                else:
+                    test_datas.append(item)
+            item = new_item
+            if count % 1000 == 0:
+                print(count)
+            count += 1
 
 test_datas.append(item)
 with open("../../datas/info/info.train.rating", encoding="utf8", mode="w") as f:

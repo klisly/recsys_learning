@@ -165,15 +165,15 @@ if __name__ == '__main__':
     print("Load data done [%.1f s]. #user=%d, #item=%d, #train=%d, #test=%d"
           % (time() - t1, num_users, num_items, train.nnz, len(testRatings)))
     print("NeuMF arguments: %s " % (args))
-    model = get_mlp_model(num_users, num_items)
+    # model = get_mlp_model(num_users, num_items)
     # model = get_gmf_model(num_users, num_items, emb_dim)
-    # model = get_neumf_model(num_users, num_items)
-    type = "ml"
+    emb_path = "emb.txt"
+    model = get_neumf_model(num_users, num_items)
+    type = "neu_mf"
     model_out_file = 'Pretrain/%s_%s_%d_%s_%d.h5' % (args.dataset, type, emb_dim, args.layers, time())
     model.compile(optimizer="adam", loss="binary_crossentropy")
     total_start = time()
     (hits, ndcgs) = evaluate_model(model, testRatings, testNegatives, topK, evaluation_threads)
-
     hr, ndcg = np.array(hits).mean(), np.array(ndcgs).mean()
     print('Init: HR = %.4f, NDCG = %.4f\t [%.1f s]' % (hr, ndcg, time() - t1))
     best_hr, best_ndcg, best_iter = hr, ndcg, -1
@@ -191,7 +191,11 @@ if __name__ == '__main__':
                   % (epoch, t2 - t1, hr, ndcg, loss, time() - t2))
             if hr > best_hr:
                 best_hr, best_ndcg, best_iter = hr, ndcg, epoch
-                if args.out > 0 and epoch % 10 == 0:
+                embs = model.get_layer("mlp_user_emb").embeddings.numpy()
+                with open(emb_path, encoding="utf8", mode="w") as f:
+                    for i in range(len(embs)):
+                        f.write(str(i) + "\t" + ",".join([str(item) for item in embs[i].tolist()]) + "\n")
+                if args.out > 0:
                     model.save_weights(model_out_file, overwrite=True)
     print("End. Best Iteration %d:  HR = %.4f, NDCG = %.4f. " % (best_iter, best_hr, best_ndcg))
     if args.out > 0:
