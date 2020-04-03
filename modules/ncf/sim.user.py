@@ -42,9 +42,9 @@ out_file = "/Users/wizardholy/project/recsys_learning/sim_user.txt"
 print(sys.argv)
 if len(sys.argv) > 4:
     d = int(sys.argv[1])
-    uid_map_file = int(sys.argv[2])
-    emb_file = int(sys.argv[3])
-    out_file = int(sys.argv[4])
+    uid_map_file = sys.argv[2]
+    emb_file = sys.argv[3]
+    out_file = sys.argv[4]
 
 print(d, uid_map_file, emb_file, out_file)
 
@@ -58,7 +58,7 @@ sim = I.tolist()
 weights = D.tolist()
 
 with open(out_file, mode="w") as f:
-    for i in range(10):
+    for i in range(len(sim)):
         uid = uid_map[i]
         outs = []
         for j in range(1, len(sim[i])):
