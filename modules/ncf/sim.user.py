@@ -41,7 +41,13 @@ emb_file = "/Users/wizardholy/project/recsys_learning/emb.txt"
 out_file = "/Users/wizardholy/project/recsys_learning/sim_user.txt"
 print(sys.argv)
 if len(sys.argv) > 4:
-    pass
+    d = int(sys.argv[1])
+    uid_map_file = int(sys.argv[2])
+    emb_file = int(sys.argv[3])
+    out_file = int(sys.argv[4])
+
+print(d, uid_map_file, emb_file, out_file)
+
 uid_map = load_uid_map(uid_map_file)
 df = load_emb(emb_file)
 df = np.array(df).astype('float32')
