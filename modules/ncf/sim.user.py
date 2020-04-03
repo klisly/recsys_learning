@@ -4,49 +4,59 @@
 # @Author  : guifeng(moguifeng@baice100.com)
 # @File    : sim.user.py
 import numpy as np
+import faiss
+import sys
 
 
-def bit_product_sum(x, y):
-    return sum([item[0] * item[1] for item in zip(x, y)])
+def load_emb(file):
+    ret = list()
+    with open(file, encoding='utf8') as f:
+        for line in f:
+            line = line.strip()
+            if len(line) > 0:
+                ret.append([float(item) for item in line.split("\t")[1].split(",")])
+    return ret
 
 
-def cosine_similarity(x, y, norm=False):
-    """ 计算两个向量x和y的余弦相似度 """
-    assert len(x) == len(y), "len(x) != len(y)"
-    zero_list = [0] * len(x)
-    if x == zero_list or y == zero_list:
-        return float(1) if x == y else float(0)
-    res = np.array([[x[i] * y[i], x[i] * x[i], y[i] * y[i]] for i in range(len(x))])
-    cos = sum(res[:, 0]) / (np.sqrt(sum(res[:, 1])) * np.sqrt(sum(res[:, 2])))
-    return 0.5 * cos + 0.5 if norm else cos  # 归一化到[0, 1]区间内
+def load_uid_map(file):
+    ret = dict()
+    with open(file, encoding='utf8') as f:
+        for line in f:
+            line = line.strip()
+            if len(line) > 0:
+                ps = line.split("\t")
+                ret[int(ps[1])] = ps[0]
+    return ret
 
 
-def user_sim(vect0, vect1):
-    vector0 = [float(item) for item in vect0.split(",")]
-    vector1 = [float(item) for item in vect1.split(",")]
-    return float(cosine_similarity(vector0, vector1))
+sim_size = 50
+nlist = 100
+m = 8
+k = 4
+d = 64
+quantizer = faiss.IndexFlatL2(d)
+index = faiss.IndexIVFPQ(quantizer, d, nlist, m, 8)
+uid_map_file = "/Users/wizardholy/project/recsys_learning/datas/info/info.uid.map.txt"
+emb_file = "/Users/wizardholy/project/recsys_learning/emb.txt"
+out_file = "/Users/wizardholy/project/recsys_learning/sim_user.txt"
+print(sys.argv)
+if len(sys.argv) > 4:
+    pass
+uid_map = load_uid_map(uid_map_file)
+df = load_emb(emb_file)
+df = np.array(df).astype('float32')
+index.train(df)
+index.add(df)
+D, I = index.search(df, sim_size + 1)
+sim = I.tolist()
+weights = D.tolist()
 
-
-emb_file = "emb.txt"
-items = dict()
-with open(emb_file, encoding="utf-8") as f:
-    for line in f:
-        ds = line.strip().split("\t")
-        items[ds[0]] = ds[1]
-with open("sim.user.rate.txt", mode='w', encoding="utf8") as f:
-    dts = dict()
-    count = 0
-    f.write("user1,user2,rate")
-    for key1 in items.keys():
-        for key2 in items.keys():
-            if key1 == key2:
-                continue
-            rate = 0
-            if key2 + ":" + key1 in dts.keys():
-                rate = dts[key2 + ":" + key1]
-            else:
-                rate = user_sim(items[key1], items[key2])
-            f.write(key1 + "," + key2 + "," + str(rate) + "\n")
-            count += 1
-            if count % 10000:
-                f.flush()
+with open(out_file, mode="w") as f:
+    for i in range(10):
+        uid = uid_map[i]
+        outs = []
+        for j in range(1, len(sim[i])):
+            suid = uid_map[sim[i][j]]
+            weight = weights[i][j]
+            outs.append("" + suid + "#" + str(weight))
+        f.write(uid + " " + (",".join(outs)) + "\n")
