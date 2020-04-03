@@ -16,13 +16,15 @@ train_datas = list()
 test_datas = list()
 uid_itemids = dict()
 
-file = 'datas/info/user_read_docs.csv'
 dir = "/home/recsys/dataset/user-read-docs"
 files = os.listdir(dir)
-for file_name in files:
-    if not file.endswith(".csv"):
+print(files)
+for i in range(len(files)):
+    file_name = files[i]
+    if not file_name.endswith(".csv"):
         continue
     file = dir + "/" + file_name
+    print("file", file)
     with open(file, encoding='utf8') as f:
         count = 0
         item = None
@@ -65,8 +67,8 @@ for file_name in files:
             if count % 1000 == 0:
                 print(count)
             count += 1
-
-test_datas.append(item)
+if item:
+    test_datas.append(item)
 with open("datas/info/info.train.rating", encoding="utf8", mode="w") as f:
     for item in train_datas:
         out = str(item[0]) + "\t" + str(item[1]) + "\t" + str(item[2]) + "\t" + str(item[3])
