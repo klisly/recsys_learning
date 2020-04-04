@@ -56,8 +56,9 @@ index.add(df)
 D, I = index.search(df, sim_size + 1)
 sim = I.tolist()
 weights = D.tolist()
-
+print("len sim", len(sim))
 with open(out_file, mode="w") as f:
+    count = 0
     for i in range(len(sim)):
         uid = uid_map[i]
         outs = []
@@ -66,3 +67,5 @@ with open(out_file, mode="w") as f:
             weight = weights[i][j]
             outs.append("" + suid + "#" + str(weight))
         f.write(uid + " " + (",".join(outs)) + "\n")
+        count += 1
+    print("total user:", count)
