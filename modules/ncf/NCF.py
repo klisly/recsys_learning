@@ -25,7 +25,7 @@ def parse_args():
                         help='Choose a dataset.')
     parser.add_argument('--type', nargs='?', default="neu_mf",
                         help='Number of epochs.')
-    parser.add_argument('--epochs', type=int, default=100,
+    parser.add_argument('--epochs', type=int, default=10,
                         help='Number of epochs.')
     parser.add_argument('--batch_size', type=int, default=256,
                         help='Batch size.')
