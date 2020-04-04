@@ -63,9 +63,13 @@ with open(out_file, mode="w") as f:
         uid = uid_map[i]
         outs = []
         for j in range(1, len(sim[i])):
-            suid = uid_map[sim[i][j]]
-            weight = weights[i][j]
-            outs.append("" + suid + "#" + str(weight))
+            try:
+                suid = uid_map[sim[i][j]]
+                weight = weights[i][j]
+                outs.append("" + suid + "#" + str(weight))
+            except:
+                print(suid, i, j)
+                pass
         f.write(uid + " " + (",".join(outs)) + "\n")
         count += 1
     print("total user:", count)
