@@ -29,7 +29,7 @@ def load_uid_map(file):
     return ret
 
 
-sim_size = 50
+sim_size = 100
 nlist = 100
 m = 8
 k = 4
@@ -45,6 +45,8 @@ if len(sys.argv) > 4:
     uid_map_file = sys.argv[2]
     emb_file = sys.argv[3]
     out_file = sys.argv[4]
+    if len(sys.argv) > 5:
+        sim_size = int(sys.argv[5])
 
 print(d, uid_map_file, emb_file, out_file)
 
